@@ -1,0 +1,153 @@
+use rainfall
+
+SELECT * 
+from rainfall_data;
+
+select count(*) from rainfall_data;
+
+## 1.	Total annual rainfall per state (descending order)
+
+SELECT STATE_UT_NAME, ROUND(SUM(ANNUAL),2) AS TOTAL_ANNUAL_RAINFALL
+FROM RAINFALL_DATA
+GROUP BY STATE_UT_NAME
+ORDER BY TOTAL_ANNUAL_RAINFALL DESC;
+
+## 2.	Top 5 rainiest districts in India (based on ANNUAL):
+
+SELECT DISTRICT, MAX(ANNUAL)
+FROM RAINFALL_DATA
+GROUP BY DISTRICT
+ORDER BY MAX(ANNUAL) DESC
+LIMIT 5;
+
+## 3.	Average rainfall in each season by state:
+
+SELECT STATE_UT_NAME, AVG(Jan-Feb), Avg(Mar-May), AVG(Jun-Sep),AVG(Oct-'Dec') 
+from RAINFALL_DATA
+group by STATE_UT_NAME
+
+
+## Find districts with more than 3000 mm annual rainfall:
+
+SELECT DISTRICT,ANNUAL
+FROM RAINFALL_DATA
+WHERE ANNUAL >3000
+ORDER BY ANNUAL ;
+
+
+## 5.	State-wise district count:alter
+
+SELECT STATE_UT_NAME,COUNT(DISTRICT) AS DISTRICT_COUNT
+FROM RAINFALL_DATA
+GROUP BY STATE_UT_NAME
+ORDER BY DISTRICT_COUNT DESC;
+
+## 6.	State with the highest average annual rainfall:
+
+SELECT STATE_UT_NAME,ROUND(AVG(ANNUAL),2) AS HIGHEST_AVERAGE_RAINFALL
+FROM RAINFALL_DATA
+GROUP BY STATE_UT_NAME
+ORDER BY HIGHEST_AVERAGE_RAINFALL DESC;
+
+
+## 7.	Districts where July rainfall exceeds 600 mm:
+
+SELECT DISTRICT,JUL
+FROM RAINFALL_DATA
+WHERE JUL > 600;
+
+## 8	Compare June vs July rainfall for each district:
+
+SELECT DISTRICT,JUN,JUL,ROUND(  (JUL - JUN),4) AS Jul_vs_Jun_Diff
+FROM RAINFALL_DATA
+ORDER BY DISTRICT;
+
+## 9.	Districts with the lowest rainfall in October:
+
+SELECT DISTRICT,MIN(OCT) AS LOWEST_RAINFALL_OCT
+FROM RAINFALL_DATA
+GROUP BY DISTRICT
+ORDER BY LOWEST_RAINFALL_OCT;
+
+
+## 10.	Top 5 driest districts (lowest ANNUAL rainfall):
+
+SELECT DISTRICT,MIN(ANNUAL) AS LOWEST_ANNUAL_RAINFALL  
+FROM RAINFALL_DATA
+GROUP BY DISTRICT
+ORDER BY MIN(ANNUAL)
+LIMIT 5;
+
+## 11.	Districts where Jan-Feb rainfall is greater than Oct-Dec:
+
+SELECT DISTRICT,ROUND(JAN-FEB,2) AS GREATEST_RAINFALL  
+FROM RAINFALL_DATA
+WHERE JAN-FEB < (OCT-'DEC');
+
+SELECT DISTRICT,(CASE WHEN JAN-FEB > OCT-'DEC' THEN "GREATER" ELSE "SMALLER" END) AS RAINFALL
+FROM RAINFALL_DATA
+
+## 12.	State-wise average monthly rainfall for March:
+
+SELECT STATE_UT_NAME,ROUND(AVG(MAR),2) AS AVG_MONTHLY_RAINFALL    
+FROM RAINFALL_DATA
+GROUP BY STATE_UT_NAME;
+
+## 13.	Districts where August rainfall is less than May:
+
+SELECT DISTRICT,AUG 
+FROM RAINFALL_DATA
+WHERE AUG < MAY;
+
+
+## 14.	Total rainfall in monsoon season (Jun–Sep) for all India:
+
+SELECT SUM(JUN+JUL+AUG+SEP) AS  JUN_SEP_TOTAL_RAINFALL
+FROM RAINFALL_DATA;
+
+## 15.	Districts with rainfall below 100 mm in all 4 winter months (Nov–Feb):
+
+SELECT DISTRICT, NOV, `DEC`, JAN, FEB
+FROM RAINFALL_DATA
+WHERE NOV < 100 AND `DEC` < 100 AND JAN < 100 AND FEB < 100;
+
+
+SELECT COLUMN_NAME
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE TABLE_NAME = 'rainfall_data'
+  AND TABLE_SCHEMA = 'rainfall'
+
+
+## 16.	Rank districts within each state by ANNUAL rainfall:
+
+SELECT STATE_UT_NAME, DISTRICT, RANK() OVER ( PARTITION BY STATE_UT_NAME ORDER BY ANNUAL) AS DISTRICT_RANK
+FROM RAINFALL_DATA;
+
+## 17.	Districts where total Mar–May rainfall exceeds Jan–Feb:
+
+SELECT DISTRICT, JAN, FEB, MAR, APR, MAY
+FROM RAINFALL_DATA
+WHERE (MAR + APR + MAY) > (JAN + FEB);
+  
+## 18.	States with more than 5 districts having over 2500 mm rainfall:
+
+SELECT STATE_UT_NAME,COUNT(DISTRICT) AS DISTRICT_COUNT
+FROM RAINFALL_DATA
+WHERE (JAN + FEB + MAR + APR + MAY + JUN + JUL + AUG + SEP + OCT + NOV + `DEC`) > 2500
+GROUP BY STATE_UT_NAME
+HAVING COUNT(DISTRICT) > 5
+ORDER BY DISTRICT_COUNT;
+
+## 19.	Districts where May is the wettest month:
+
+SELECT DISTRICT, MAY
+FROM RAINFALL_DATA
+WHERE MAY >= JAN AND MAY >= FEB AND MAY >= MAR AND MAY >= APR
+  AND MAY >= JUN AND MAY >= JUL AND MAY >= AUG AND MAY >= SEP
+  AND MAY >= OCT AND MAY >= NOV AND MAY >= `DEC`;
+
+## 20.	Average rainfall in all districts of Arunachal Pradesh:
+
+SELECT ROUND(AVG(JAN + FEB + MAR + APR + MAY + JUN + JUL + AUG + SEP + OCT + NOV + `DEC`),2) AS avg_annual_rainfall
+FROM RAINFALL_DATA
+WHERE STATE_UT_NAME = 'Arunachal Pradesh';
